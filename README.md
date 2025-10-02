@@ -3,7 +3,7 @@
 A comprehensive food ordering web application built specifically for Thapar University students and campus shop owners. This platform enables students to order food from various campus shops while providing shop owners with tools to manage their menu and orders.
 
 ## 🌐 Live Demo
-- **Frontend:** [https://your-app.vercel.app](https://your-app.vercel.app) *(Update this with your actual Vercel URL)*
+- **Frontend:** [[https://your-app.vercel.app](https://bite-xpress-gold.vercel.app/)]
 - **Backend API:** [https://your-app.up.railway.app](https://your-app.up.railway.app) *(Update this with your actual Railway URL)*
 
 ## 🚀 Features
