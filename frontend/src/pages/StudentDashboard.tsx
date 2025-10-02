@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { ShoppingBag, Store, MapPin, Clock, Star, LogOut, User, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { UPLOADS_BASE_URL } from '../config/api';
 
 interface Shop {
   _id: string;
@@ -237,7 +238,7 @@ const StudentDashboard = () => {
                     <div className="h-48 relative overflow-hidden bg-gray-100">
                       {shop.shopImage ? (
                         <img
-                          src={shop.shopImage}
+                          src={shop.shopImage.startsWith('http') ? shop.shopImage : `${UPLOADS_BASE_URL}${shop.shopImage}`}
                           alt={shop.shopName}
                           className="w-full h-full object-cover"
                           loading="lazy"
