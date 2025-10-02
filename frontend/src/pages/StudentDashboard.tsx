@@ -29,14 +29,17 @@ interface Order {
 const StudentDashboard = () => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTab, setActiveTab] = useState<'shops' | 'orders'>('shops');
+  const [activeTab, setActiveTab] = useState<'shops' | 'orders' | 'profile'>('shops');
   const [loading, setLoading] = useState(true);
 
   const { user, logout } = useAuth();
   const { getTotalItems } = useCart();
 
+  const [profile, setProfile] = useState({ name: '', phone: '', hostel: '', year: '' });
+
   useEffect(() => {
     fetchData();
+    fetchProfile();
   }, []);
 
   const fetchData = async () => {
@@ -52,6 +55,36 @@ const StudentDashboard = () => {
       toast.error('Failed to load data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get('/api/students/profile');
+      setProfile({
+        name: res.data.name || '',
+        phone: res.data.phone || '',
+        hostel: res.data.hostel || '',
+        year: String(res.data.year || '')
+      });
+    } catch (error) {
+      // ignore for now
+    }
+  };
+
+  const saveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await axios.put('/api/students/profile', {
+        name: profile.name,
+        phone: profile.phone,
+        hostel: profile.hostel,
+        year: Number(profile.year)
+      });
+      toast.success('Profile updated');
+      fetchProfile();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     }
   };
 
@@ -163,6 +196,16 @@ const StudentDashboard = () => {
               >
                 My Orders ({orders.length})
               </button>
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'profile'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Profile
+              </button>
             </nav>
           </div>
         </div>
@@ -237,6 +280,70 @@ const StudentDashboard = () => {
                 ))}
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Profile Tab */}
+        {activeTab === 'profile' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 max-w-2xl"
+          >
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">My Profile</h3>
+            <form onSubmit={saveProfile} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={profile.name}
+                    onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={profile.phone}
+                    onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hostel</label>
+                  <select
+                    value={profile.hostel}
+                    onChange={(e) => setProfile(prev => ({ ...prev, hostel: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="">Select Hostel</option>
+                    {['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','PG','Q'].map(h => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                  <select
+                    value={profile.year}
+                    onChange={(e) => setProfile(prev => ({ ...prev, year: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="">Select Year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Save Changes</button>
+            </form>
           </motion.div>
         )}
 

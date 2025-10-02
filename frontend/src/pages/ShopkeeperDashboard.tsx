@@ -38,7 +38,7 @@ interface Order {
 }
 
 const ShopkeeperDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'menu' | 'orders'>('orders');
+  const [activeTab, setActiveTab] = useState<'menu' | 'orders' | 'profile'>('orders');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +46,9 @@ const ShopkeeperDashboard = () => {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
 
   const { user, logout } = useAuth();
+
+  const [profile, setProfile] = useState<{ name: string; phone: string; shopName: string; shopLocation: string; shopType: string; shopImage?: string | null } | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [itemForm, setItemForm] = useState({
     name: '',
@@ -58,6 +61,7 @@ const ShopkeeperDashboard = () => {
 
   useEffect(() => {
     fetchData();
+    fetchProfile();
   }, []);
 
   const fetchData = async () => {
@@ -73,6 +77,53 @@ const ShopkeeperDashboard = () => {
       toast.error('Failed to load data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get('/api/shopkeepers/me');
+      setProfile(res.data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const saveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) return;
+    try {
+      await axios.put('/api/shopkeepers/profile', {
+        name: profile.name,
+        phone: profile.phone,
+        shopName: profile.shopName,
+        shopLocation: profile.shopLocation,
+        shopType: profile.shopType,
+      });
+      toast.success('Profile updated');
+      fetchProfile();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update profile');
+    }
+  };
+
+  const uploadImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!imageFile) {
+      toast.error('Please select an image');
+      return;
+    }
+    try {
+      const form = new FormData();
+      form.append('shopImage', imageFile);
+      const res = await axios.post('/api/shopkeepers/image', form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      toast.success('Image uploaded');
+      setImageFile(null);
+      setProfile(prev => prev ? { ...prev, shopImage: res.data.shopImage } : prev);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to upload image');
     }
   };
 
@@ -291,6 +342,16 @@ const ShopkeeperDashboard = () => {
               >
                 Menu Management
               </button>
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'profile'
+                    ? 'border-accent-500 text-accent-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Profile
+              </button>
             </nav>
           </div>
         </div>
@@ -417,6 +478,85 @@ const ShopkeeperDashboard = () => {
                 ))}
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Profile Tab */}
+        {activeTab === 'profile' && profile && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="grid md:grid-cols-2 gap-6"
+          >
+            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop Details</h3>
+              <form onSubmit={saveProfile} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Shop Name</label>
+                  <input
+                    type="text"
+                    value={profile.shopName}
+                    onChange={(e) => setProfile(prev => prev ? { ...prev, shopName: e.target.value } : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={profile.shopLocation}
+                    onChange={(e) => setProfile(prev => prev ? { ...prev, shopLocation: e.target.value } : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <input
+                    type="text"
+                    value={profile.shopType}
+                    onChange={(e) => setProfile(prev => prev ? { ...prev, shopType: e.target.value } : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Owner Name</label>
+                    <input
+                      type="text"
+                      value={profile.name}
+                      onChange={(e) => setProfile(prev => prev ? { ...prev, name: e.target.value } : prev)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={profile.phone}
+                      onChange={(e) => setProfile(prev => prev ? { ...prev, phone: e.target.value } : prev)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="px-4 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700">Save Changes</button>
+              </form>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop Image</h3>
+              <div className="mb-4">
+                {profile.shopImage ? (
+                  <img src={profile.shopImage} alt="Shop" className="w-full h-48 object-cover rounded-lg" />
+                ) : (
+                  <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">No image</div>
+                )}
+              </div>
+              <form onSubmit={uploadImage} className="space-y-3">
+                <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+                <button type="submit" className="px-4 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700">Upload Image</button>
+              </form>
+            </div>
           </motion.div>
         )}
 

@@ -51,6 +51,45 @@ router.post('/image', auth, upload.single('shopImage'), async (req, res) => {
   }
 });
 
+// Get own profile (shopkeeper)
+router.get('/me', auth, async (req, res) => {
+  try {
+    if (req.userType !== 'shopkeeper') {
+      return res.status(403).json({ message: 'Access denied. Shopkeepers only.' });
+    }
+
+    const shopkeeper = await Shopkeeper.findById(req.user._id)
+      .select('name email phone shopName shopLocation shopType shopImage isVerified');
+    res.json(shopkeeper);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update profile details (without image)
+router.put('/profile', auth, async (req, res) => {
+  try {
+    if (req.userType !== 'shopkeeper') {
+      return res.status(403).json({ message: 'Access denied. Shopkeepers only.' });
+    }
+
+    const allowed = ['name', 'phone', 'shopName', 'shopLocation', 'shopType'];
+    const update = {};
+    for (const key of allowed) {
+      if (typeof req.body[key] !== 'undefined') update[key] = req.body[key];
+    }
+
+    const updated = await Shopkeeper.findByIdAndUpdate(req.user._id, update, { new: true })
+      .select('name email phone shopName shopLocation shopType shopImage isVerified');
+
+    res.json({ message: 'Profile updated', profile: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Add menu item
 router.post('/menu', auth, async (req, res) => {
   try {
