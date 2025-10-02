@@ -201,11 +201,7 @@ Make sure to set the production environment variables:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- **Your Name** - *Initial work* - [YourGitHub](https://github.com/yourusername)
+This project is licensed under the MIT License 
 
 ## 🙏 Acknowledgments
 
@@ -215,7 +211,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email your-email@example.com or create an issue in the repository.
+For support create an issue in the repository.
 
 ---
 
