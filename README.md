@@ -6,17 +6,19 @@ A comprehensive food ordering web application built specifically for Thapar Univ
 
 ### For Students
 - **Thapar ID Authentication**: Sign up using official Thapar email (@thapar.edu)
-- **Browse Campus Shops**: View all available shops and their menus
+- **Browse Campus Shops**: View all available shops with images and their menus
 - **Easy Ordering**: Add items to cart and place orders with cash payment
 - **Order Tracking**: Real-time status updates from preparation to delivery
 - **Order History**: View all past orders and their status
+- **Profile Management**: Update personal details, hostel, and contact information
 
 ### For Shop Owners
-- **Shop Management**: Register and manage shop details
+- **Shop Management**: Register and manage shop details with optional shop images
 - **Menu Management**: Add, edit, and delete menu items with categories
 - **Order Processing**: Accept/reject orders and update status
 - **Customer Information**: Access customer details for order fulfillment
 - **Order History**: Track all orders and sales
+- **Profile Management**: Update shop details, contact info, and upload shop images
 
 ### General Features
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
@@ -40,6 +42,7 @@ A comprehensive food ordering web application built specifically for Thapar Univ
 - **JWT** for authentication
 - **bcryptjs** for password hashing
 - **Express Validator** for input validation
+- **Multer** for file uploads (shop images)
 
 ## 📦 Project Structure
 
@@ -103,14 +106,15 @@ bitexpress-food-ordering/
 ### Student Registration
 1. Go to the homepage and click "Sign Up as Student"
 2. Fill in your details with your Thapar email ID
-3. Provide your 9-digit roll number, hostel, year, and branch
+3. Provide your 9-digit roll number, hostel, and year
 4. Create a secure password and complete registration
 
 ### Shop Owner Registration
 1. Click "Sign Up as Shop Owner" on the homepage
 2. Enter your personal and shop details
-3. Select your shop location and type
-4. Wait for admin verification (automatic for demo)
+3. Enter your shop location and select shop type
+4. Optionally upload a shop image during registration
+5. Registration is automatically approved for demo purposes
 
 ### Placing Orders (Students)
 1. Browse available shops on your dashboard
@@ -134,6 +138,7 @@ bitexpress-food-ordering/
 
 ### Students
 - `GET /api/students/profile` - Get student profile
+- `PUT /api/students/profile` - Update student profile
 - `GET /api/shops` - Get all active shops
 - `GET /api/shops/:id/menu` - Get shop menu
 
@@ -144,6 +149,9 @@ bitexpress-food-ordering/
 - `PUT /api/orders/:id/cancel` - Cancel order
 
 ### Shop Owners
+- `GET /api/shopkeepers/me` - Get shopkeeper profile
+- `PUT /api/shopkeepers/profile` - Update shopkeeper profile
+- `POST /api/shopkeepers/image` - Upload/update shop image
 - `POST /api/shopkeepers/menu` - Add menu item
 - `GET /api/shopkeepers/menu` - Get shop menu
 - `PUT /api/shopkeepers/menu/:id` - Update menu item
