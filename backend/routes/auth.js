@@ -1,10 +1,30 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const Student = require('../models/Student');
 const Shopkeeper = require('../models/Shopkeeper');
 
 const router = express.Router();
+
+// Multer storage for optional shop images
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9-_\.]/g, '_');
+    cb(null, Date.now() + '-' + safeName);
+  }
+});
+const upload = multer({ storage });
 
 // Student Registration
 router.post('/register/student', [
@@ -57,7 +77,7 @@ router.post('/register/student', [
 });
 
 // Shopkeeper Registration
-router.post('/register/shopkeeper', [
+router.post('/register/shopkeeper', upload.single('shopImage'), [
   body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Please provide a valid email'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
@@ -71,6 +91,7 @@ router.post('/register/shopkeeper', [
     }
 
     const { name, email, password, phone, shopName, shopLocation, shopType } = req.body;
+    const shopImagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
     // Check if shopkeeper already exists
     const existingShopkeeper = await Shopkeeper.findOne({ $or: [{ email }, { shopName }] });
@@ -79,7 +100,7 @@ router.post('/register/shopkeeper', [
     }
 
     const shopkeeper = new Shopkeeper({
-      name, email, password, phone, shopName, shopLocation, shopType
+      name, email, password, phone, shopName, shopLocation, shopType, shopImage: shopImagePath
     });
 
     await shopkeeper.save();
@@ -98,6 +119,7 @@ router.post('/register/shopkeeper', [
         name: shopkeeper.name,
         email: shopkeeper.email,
         shopName: shopkeeper.shopName,
+        shopImage: shopkeeper.shopImage,
         userType: 'shopkeeper'
       }
     });
@@ -148,6 +170,7 @@ router.post('/login', [
     if (userType === 'shopkeeper') {
       userResponse.shopName = user.shopName;
       userResponse.isVerified = user.isVerified;
+      userResponse.shopImage = user.shopImage || null;
     }
 
     res.json({

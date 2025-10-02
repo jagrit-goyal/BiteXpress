@@ -11,6 +11,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+// Serve uploaded images from absolute path to avoid cwd issues
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));

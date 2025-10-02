@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +22,8 @@ const RegisterPage = () => {
     // Shopkeeper specific
     shopName: '',
     shopLocation: '',
-    shopType: ''
+    shopType: '',
+    shopImage: null as File | null
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -44,7 +46,30 @@ const RegisterPage = () => {
     }
 
     try {
-      await register(formData);
+      if (formData.userType === 'shopkeeper' && formData.shopImage) {
+        const multipart = new FormData();
+        multipart.append('name', formData.name);
+        multipart.append('email', formData.email);
+        multipart.append('password', formData.password);
+        multipart.append('phone', formData.phone);
+        multipart.append('shopName', formData.shopName);
+        multipart.append('shopLocation', formData.shopLocation);
+        multipart.append('shopType', formData.shopType);
+        multipart.append('shopImage', formData.shopImage);
+
+        const res = await fetch('/api/auth/register/shopkeeper', {
+          method: 'POST',
+          body: multipart
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Registration failed');
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      } else {
+        await register(formData as any);
+      }
       toast.success('Registration successful!');
       navigate(formData.userType === 'student' ? '/student' : '/shopkeeper');
     } catch (error: any) {
@@ -59,6 +84,11 @@ const RegisterPage = () => {
       ...prev,
       [e.target.name]: e.target.value
     }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    setFormData(prev => ({ ...prev, shopImage: file }));
   };
 
   return (
@@ -268,6 +298,20 @@ const RegisterPage = () => {
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Shop Image (optional)
+                  </label>
+                  <input
+                    type="file"
+                    name="shopImage"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">You can skip this now and upload later from your dashboard.</p>
                 </div>
               </>
             )}

@@ -43,6 +43,10 @@ const shopkeeperSchema = new mongoose.Schema({
     required: true,
     enum: ['Fast Food', 'Indian', 'Chinese', 'South Indian', 'Beverages', 'Snacks', 'Desserts']
   },
+  shopImage: {
+    type: String,
+    default: null
+  },
   isVerified: {
     type: Boolean,
     default: true

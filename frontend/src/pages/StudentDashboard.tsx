@@ -13,6 +13,7 @@ interface Shop {
   shopLocation: string;
   shopType: string;
   name: string;
+  shopImage?: string | null;
 }
 
 interface Order {
@@ -190,10 +191,19 @@ const StudentDashboard = () => {
                     whileHover={{ y: -5 }}
                     className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
                   >
-                    <div className="h-48 bg-gradient-to-br from-primary-400 to-accent-400 relative">
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                        <Store className="h-16 w-16 text-white/80" />
-                      </div>
+                    <div className="h-48 relative overflow-hidden bg-gray-100">
+                      {shop.shopImage ? (
+                        <img
+                          src={shop.shopImage}
+                          alt={shop.shopName}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-accent-400 flex items-center justify-center">
+                          <Store className="h-16 w-16 text-white/80" />
+                        </div>
+                      )}
                       <div className="absolute top-4 right-4">
                         <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
                           {shop.shopType}

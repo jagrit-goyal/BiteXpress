@@ -1,9 +1,55 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const auth = require('../middleware/auth');
 const MenuItem = require('../models/MenuItem');
 const Order = require('../models/Order');
+const Shopkeeper = require('../models/Shopkeeper');
 
 const router = express.Router();
+
+// Multer config for updating shop image
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9-_\.]/g, '_');
+    cb(null, Date.now() + '-' + safeName);
+  }
+});
+const upload = multer({ storage });
+
+// Update shop image
+router.post('/image', auth, upload.single('shopImage'), async (req, res) => {
+  try {
+    if (req.userType !== 'shopkeeper') {
+      return res.status(403).json({ message: 'Access denied. Shopkeepers only.' });
+    }
+
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!imagePath) {
+      return res.status(400).json({ message: 'No image file uploaded' });
+    }
+
+    const updated = await Shopkeeper.findByIdAndUpdate(
+      req.user._id,
+      { shopImage: imagePath },
+      { new: true }
+    ).select('shopName shopImage');
+
+    res.json({ message: 'Shop image updated', shopImage: updated.shopImage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Add menu item
 router.post('/menu', auth, async (req, res) => {
