@@ -36,7 +36,7 @@ const shopkeeperSchema = new mongoose.Schema({
   shopLocation: {
     type: String,
     required: true,
-    enum: ['Campus', 'Gate 1', 'Gate 2', 'Hostel Area', 'Academic Block', 'Food Court']
+    trim: true
   },
   shopType: {
     type: String,

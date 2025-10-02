@@ -18,7 +18,6 @@ const RegisterPage = () => {
     rollNumber: '',
     hostel: '',
     year: '',
-    branch: '',
     // Shopkeeper specific
     shopName: '',
     shopLocation: '',
@@ -31,8 +30,7 @@ const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const hostels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Day Scholar'];
-  const shopLocations = ['Campus', 'Gate 1', 'Gate 2', 'Hostel Area', 'Academic Block', 'Food Court'];
+  const hostels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'PG', 'Q'];
   const shopTypes = ['Fast Food', 'Indian', 'Chinese', 'South Indian', 'Beverages', 'Snacks', 'Desserts'];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -200,40 +198,23 @@ const RegisterPage = () => {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Year *
-                    </label>
-                    <select
-                      name="year"
-                      value={formData.year}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                    >
-                      <option value="">Select Year</option>
-                      <option value="1">1st Year</option>
-                      <option value="2">2nd Year</option>
-                      <option value="3">3rd Year</option>
-                      <option value="4">4th Year</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Branch *
-                    </label>
-                    <input
-                      type="text"
-                      name="branch"
-                      value={formData.branch}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                      placeholder="e.g., Computer Engineering"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Year *
+                  </label>
+                  <select
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select Year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
                 </div>
               </>
             )}
@@ -256,42 +237,37 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Shop Location *
-                    </label>
-                    <select
-                      name="shopLocation"
-                      value={formData.shopLocation}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all"
-                    >
-                      <option value="">Select Location</option>
-                      {shopLocations.map(location => (
-                        <option key={location} value={location}>{location}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Shop Location *
+                  </label>
+                  <input
+                    type="text"
+                    name="shopLocation"
+                    value={formData.shopLocation}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all"
+                    placeholder="e.g., Campus, Gate 1, Hostel Area, etc."
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Shop Type *
-                    </label>
-                    <select
-                      name="shopType"
-                      value={formData.shopType}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all"
-                    >
-                      <option value="">Select Type</option>
-                      {shopTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Shop Type *
+                  </label>
+                  <select
+                    name="shopType"
+                    value={formData.shopType}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select Type</option>
+                    {shopTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
                 </div>
               </>
             )}

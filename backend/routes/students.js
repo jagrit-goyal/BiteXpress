@@ -18,8 +18,7 @@ router.get('/profile', auth, async (req, res) => {
       rollNumber: student.rollNumber,
       hostel: student.hostel,
       phone: student.phone,
-      year: student.year,
-      branch: student.branch
+      year: student.year
     });
   } catch (error) {
     console.error(error);

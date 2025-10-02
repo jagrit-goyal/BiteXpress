@@ -38,7 +38,7 @@ const studentSchema = new mongoose.Schema({
   hostel: {
     type: String,
     required: true,
-    enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Day Scholar']
+    enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'PG', 'Q']
   },
   phone: {
     type: String,
@@ -55,10 +55,6 @@ const studentSchema = new mongoose.Schema({
     required: true,
     min: 1,
     max: 4
-  },
-  branch: {
-    type: String,
-    required: true
   }
 }, {
   timestamps: true

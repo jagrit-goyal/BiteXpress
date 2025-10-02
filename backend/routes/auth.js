@@ -20,7 +20,7 @@ router.post('/register/student', [
       return res.status(400).json({ message: errors.array()[0].msg });
     }
 
-    const { name, email, password, rollNumber, hostel, phone, year, branch } = req.body;
+    const { name, email, password, rollNumber, hostel, phone, year } = req.body;
 
     // Check if student already exists
     const existingStudent = await Student.findOne({ $or: [{ email }, { rollNumber }] });
@@ -29,7 +29,7 @@ router.post('/register/student', [
     }
 
     const student = new Student({
-      name, email, password, rollNumber, hostel, phone, year, branch
+      name, email, password, rollNumber, hostel, phone, year
     });
 
     await student.save();
