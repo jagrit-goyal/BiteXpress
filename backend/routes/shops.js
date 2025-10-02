@@ -8,7 +8,7 @@ const router = express.Router();
 // Get all active shops
 router.get('/', async (req, res) => {
   try {
-    const shops = await Shopkeeper.find({ isActive: true, isVerified: true })
+    const shops = await Shopkeeper.find({ isActive: true })
       .select('-password')
       .sort({ shopName: 1 });
     
@@ -27,7 +27,7 @@ router.get('/:shopId/menu', async (req, res) => {
     const menuItems = await MenuItem.find({ 
       shopkeeper: shopId, 
       isAvailable: true 
-    }).populate('shopkeeper', 'shopName shopType');
+    }).populate('shopkeeper', 'shopName shopType shopLocation');
     
     res.json(menuItems);
   } catch (error) {
