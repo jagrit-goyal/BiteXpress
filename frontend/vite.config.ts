@@ -16,6 +16,10 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+  },
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
