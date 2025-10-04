@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, Clock, CheckCircle, XCircle, Package, MapPin, Phone, User } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, XCircle, Package, MapPin, Phone, User, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface OrderItem {
   menuItem: {
@@ -56,6 +57,21 @@ const OrderTracking = () => {
       console.error('Error fetching order:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!order) return;
+    
+    if (window.confirm('Are you sure you want to cancel this order?')) {
+      try {
+        await axios.put(`/api/orders/${order._id}/cancel`);
+        toast.success('Order cancelled successfully');
+        // Refresh the order to show updated status
+        fetchOrder();
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Failed to cancel order');
+      }
     }
   };
 
@@ -230,6 +246,19 @@ const OrderTracking = () => {
               </p>
             )}
           </div>
+
+          {/* Cancel Order Button - Only for students when order is pending */}
+          {user?.userType === 'student' && order.status === 'pending' && (
+            <div className="mb-6">
+              <button
+                onClick={handleCancelOrder}
+                className="flex items-center space-x-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+              >
+                <X className="h-4 w-4" />
+                <span>Cancel Order</span>
+              </button>
+            </div>
+          )}
 
           {/* Progress Bar */}
           {order.status !== 'rejected' && order.status !== 'cancelled' && (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
@@ -34,6 +34,7 @@ interface Shop {
 
 const ShopMenu = () => {
   const { shopId } = useParams();
+  const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [shop, setShop] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +94,7 @@ const ShopMenu = () => {
     }));
 
     try {
-      await axios.post('/api/orders', {
+      const response = await axios.post('/api/orders', {
         shopkeeperId: shopId,
         items: orderItems,
         deliveryInstructions: ''
@@ -102,6 +103,9 @@ const ShopMenu = () => {
       toast.success('Order placed successfully!');
       clearCart();
       setShowCart(false);
+      
+      // Redirect to order tracking page
+      navigate(`/order/${response.data.order._id}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to place order');
     }
