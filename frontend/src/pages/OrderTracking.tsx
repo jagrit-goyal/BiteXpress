@@ -29,6 +29,8 @@ interface Order {
   };
   items: OrderItem[];
   totalAmount: number;
+  subtotal: number;
+  deliveryFee: number;
   status: string;
   createdAt: string;
   deliveryInstructions?: string;
@@ -383,11 +385,13 @@ const OrderTracking = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Items Total</span>
-                  <span className="font-medium">₹{order.totalAmount}</span>
+                  <span className="font-medium">₹{order.subtotal || order.totalAmount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Delivery Fee</span>
-                  <span className="font-medium text-green-600">Free</span>
+                  <span className="font-medium">
+                    {order.deliveryFee > 0 ? `₹${order.deliveryFee}` : 'FREE'}
+                  </span>
                 </div>
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between">

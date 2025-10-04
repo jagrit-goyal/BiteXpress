@@ -47,7 +47,17 @@ const ShopkeeperDashboard = () => {
 
   const { user, logout } = useAuth();
 
-  const [profile, setProfile] = useState<{ name: string; phone: string; shopName: string; shopLocation: string; shopType: string; shopImage?: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ 
+    name: string; 
+    phone: string; 
+    shopName: string; 
+    shopLocation: string; 
+    shopType: string; 
+    shopImage?: string | null;
+    deliveryFee: number;
+    minimumOrderAmount: number;
+    freeDeliveryAbove: number | null;
+  } | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [itemForm, setItemForm] = useState({
@@ -99,6 +109,9 @@ const ShopkeeperDashboard = () => {
         shopName: profile.shopName,
         shopLocation: profile.shopLocation,
         shopType: profile.shopType,
+        deliveryFee: profile.deliveryFee,
+        minimumOrderAmount: profile.minimumOrderAmount,
+        freeDeliveryAbove: profile.freeDeliveryAbove
       });
       toast.success('Profile updated');
       fetchProfile();
@@ -540,6 +553,46 @@ const ShopkeeperDashboard = () => {
                   </div>
                 </div>
                 <button type="submit" className="px-4 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700">Save Changes</button>
+              </form>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Delivery Settings</h3>
+              <form onSubmit={saveProfile} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Fee (₹)</label>
+                  <input
+                    type="text"
+                    value={profile.deliveryFee}
+                    onChange={(e) => setProfile(prev => prev ? { ...prev, deliveryFee: parseFloat(e.target.value) || 0 } : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Set to 0 for free delivery</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Order Amount (₹)</label>
+                  <input
+                    type="text"
+                    value={profile.minimumOrderAmount}
+                    onChange={(e) => setProfile(prev => prev ? { ...prev, minimumOrderAmount: parseFloat(e.target.value) || 0 } : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Orders below this amount will have delivery fee applied</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Free Delivery Above (₹)</label>
+                  <input
+                    type="text"
+                    value={profile.freeDeliveryAbove || ''}
+                    onChange={(e) => setProfile(prev => prev ? { ...prev, freeDeliveryAbove: e.target.value ? parseFloat(e.target.value) : null } : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                    placeholder="Leave empty for no free delivery threshold"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Orders above this amount get free delivery</p>
+                </div>
+                <button type="submit" className="px-4 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700">Save Delivery Settings</button>
               </form>
             </div>
 

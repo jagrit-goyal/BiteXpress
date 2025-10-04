@@ -2,6 +2,7 @@ const express = require('express');
 const auth = require('../middleware/auth');
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
+const Shopkeeper = require('../models/Shopkeeper');
 
 const router = express.Router();
 
@@ -38,11 +39,31 @@ router.post('/', auth, async (req, res) => {
       });
     }
 
+    // Get shopkeeper details for delivery fee calculation
+    const shopkeeper = await Shopkeeper.findById(shopkeeperId);
+    if (!shopkeeper) {
+      return res.status(404).json({ message: 'Shopkeeper not found' });
+    }
+
+    // Calculate delivery fee
+    let deliveryFee = 0;
+    if (shopkeeper.deliveryFee > 0) {
+      if (shopkeeper.freeDeliveryAbove && totalAmount >= shopkeeper.freeDeliveryAbove) {
+        deliveryFee = 0; // Free delivery above threshold
+      } else {
+        deliveryFee = shopkeeper.deliveryFee; // Apply delivery fee to all other orders
+      }
+    }
+
+    const finalTotal = totalAmount + deliveryFee;
+
     const order = new Order({
       student: req.user._id,
       shopkeeper: shopkeeperId,
       items: orderItems,
-      totalAmount,
+      totalAmount: finalTotal,
+      subtotal: totalAmount,
+      deliveryFee: deliveryFee,
       deliveryInstructions
     });
 

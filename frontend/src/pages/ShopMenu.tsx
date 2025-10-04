@@ -30,6 +30,9 @@ interface Shop {
   shopLocation: string;
   shopType: string;
   name: string;
+  deliveryFee: number;
+  minimumOrderAmount: number;
+  freeDeliveryAbove: number | null;
 }
 
 const ShopMenu = () => {
@@ -42,6 +45,23 @@ const ShopMenu = () => {
   const [showCart, setShowCart] = useState(false);
 
   const { items, addItem, updateQuantity, clearCart, getTotalPrice, getTotalItems } = useCart();
+
+  const calculateDeliveryFee = () => {
+    if (!shop) return 0;
+    
+    const subtotal = getTotalPrice();
+    
+    // If no delivery fee set, always free
+    if (shop.deliveryFee === 0) return 0;
+    
+    // Free delivery above threshold
+    if (shop.freeDeliveryAbove && subtotal >= shop.freeDeliveryAbove) {
+      return 0;
+    }
+    
+    // Apply delivery fee to all orders (unless free delivery above threshold)
+    return shop.deliveryFee;
+  };
 
   useEffect(() => {
     fetchShopData();
@@ -88,16 +108,28 @@ const ShopMenu = () => {
       return;
     }
 
+    const subtotal = getTotalPrice();
+    
+    // Check minimum order amount
+    if (shop && shop.minimumOrderAmount > 0 && subtotal < shop.minimumOrderAmount) {
+      toast.error(`Minimum order amount is ₹${shop.minimumOrderAmount}. Please add more items to your cart.`);
+      return;
+    }
+
     const orderItems = items.map(item => ({
       menuItemId: item.id,
       quantity: item.quantity
     }));
 
     try {
+      const deliveryFee = calculateDeliveryFee();
+      
       const response = await axios.post('/api/orders', {
         shopkeeperId: shopId,
         items: orderItems,
-        deliveryInstructions: ''
+        deliveryInstructions: '',
+        subtotal: subtotal,
+        deliveryFee: deliveryFee
       });
       
       toast.success('Order placed successfully!');
@@ -319,18 +351,68 @@ const ShopMenu = () => {
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 mb-6">
-                  <div className="flex justify-between items-center text-xl font-bold">
-                    <span>Total: ₹{getTotalPrice()}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span>Subtotal:</span>
+                      <span>₹{getTotalPrice()}</span>
+                    </div>
+                    {calculateDeliveryFee() > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span>Delivery Fee:</span>
+                        <span>₹{calculateDeliveryFee()}</span>
+                      </div>
+                    )}
+                    {calculateDeliveryFee() === 0 && shop?.deliveryFee > 0 && (
+                      <div className="flex justify-between items-center text-sm text-green-600">
+                        <span>Delivery Fee:</span>
+                        <span>FREE</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center text-xl font-bold border-t border-gray-200 pt-2">
+                      <span>Total:</span>
+                      <span>₹{getTotalPrice() + calculateDeliveryFee()}</span>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">Payment: Cash only</p>
+                  
+                  {/* Minimum Order Amount Warning */}
+                  {shop && shop.minimumOrderAmount > 0 && getTotalPrice() < shop.minimumOrderAmount && (
+                    <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-sm text-yellow-800">
+                        <span className="font-medium">Minimum order: ₹{shop.minimumOrderAmount}</span>
+                        <br />
+                        Add ₹{shop.minimumOrderAmount - getTotalPrice()} more to place order
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Free Delivery Message */}
+                  {shop && shop.freeDeliveryAbove && shop.deliveryFee > 0 && getTotalPrice() < shop.freeDeliveryAbove && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        <span className="font-medium">🎉 Add ₹{shop.freeDeliveryAbove - getTotalPrice()} more for FREE delivery!</span>
+                        <br />
+                        <span className="text-xs">Order above ₹{shop.freeDeliveryAbove} to save ₹{shop.deliveryFee} on delivery</span>
+                      </p>
+                    </div>
+                  )}
+                  
+                  <p className="text-sm text-gray-600 mt-2">Payment: Cash only</p>
                 </div>
 
                 <div className="space-y-3">
                   <button
                     onClick={handlePlaceOrder}
-                    className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold"
+                    disabled={shop && shop.minimumOrderAmount > 0 && getTotalPrice() < shop.minimumOrderAmount}
+                    className={`w-full py-3 rounded-lg transition-colors font-semibold ${
+                      shop && shop.minimumOrderAmount > 0 && getTotalPrice() < shop.minimumOrderAmount
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-primary-600 text-white hover:bg-primary-700'
+                    }`}
                   >
-                    Place Order
+                    {shop && shop.minimumOrderAmount > 0 && getTotalPrice() < shop.minimumOrderAmount
+                      ? `Add ₹${shop.minimumOrderAmount - getTotalPrice()} more to order`
+                      : 'Place Order'
+                    }
                   </button>
                   <button
                     onClick={() => setShowCart(false)}

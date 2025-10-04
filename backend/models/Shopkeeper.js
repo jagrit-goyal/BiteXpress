@@ -54,6 +54,21 @@ const shopkeeperSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  deliveryFee: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  minimumOrderAmount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  freeDeliveryAbove: {
+    type: Number,
+    default: null,
+    min: 0
   }
 }, {
   timestamps: true
