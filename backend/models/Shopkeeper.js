@@ -55,6 +55,10 @@ const shopkeeperSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isOpen: {
+    type: Boolean,
+    default: false
+  },
   deliveryFee: {
     type: Number,
     default: 0,

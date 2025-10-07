@@ -159,6 +159,19 @@ const ShopMenu = () => {
     );
   }
 
+  if (shop && (shop as any).isOpen === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">This shop is currently closed</h2>
+          <Link to="/student" className="text-primary-600 hover:text-primary-700">
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (!shop) {
     return (
       <div className="min-h-screen flex items-center justify-center">

@@ -15,6 +15,7 @@ interface Shop {
   shopType: string;
   name: string;
   shopImage?: string | null;
+  isOpen?: boolean;
 }
 
 interface Order {
@@ -232,8 +233,10 @@ const StudentDashboard = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                    whileHover={{ y: -5 }}
-                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                    whileHover={{ y: shop.isOpen === false ? 0 : -5 }}
+                    className={`bg-white rounded-2xl shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 ${
+                      shop.isOpen === false ? 'opacity-60' : 'hover:shadow-xl'
+                    }`}
                   >
                     <div className="h-48 relative overflow-hidden bg-gray-100">
                       {shop.shopImage ? (
@@ -248,7 +251,10 @@ const StudentDashboard = () => {
                           <Store className="h-16 w-16 text-white/80" />
                         </div>
                       )}
-                      <div className="absolute top-4 right-4">
+                      <div className="absolute top-4 right-4 flex items-center gap-2">
+                        {shop.isOpen === false && (
+                          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">Closed</span>
+                        )}
                         <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
                           {shop.shopType}
                         </span>
@@ -269,12 +275,21 @@ const StudentDashboard = () => {
                           <Star className="h-4 w-4 text-yellow-400 mr-1" />
                           <span className="text-sm text-gray-600">4.5</span>
                         </div>
-                        <Link
-                          to={`/shop/${shop._id}`}
-                          className="px-6 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors font-medium"
-                        >
-                          View Menu
-                        </Link>
+                        {shop.isOpen === false ? (
+                          <button
+                            disabled
+                            className="px-6 py-2 bg-gray-300 text-gray-600 rounded-full cursor-not-allowed font-medium"
+                          >
+                            Closed
+                          </button>
+                        ) : (
+                          <Link
+                            to={`/shop/${shop._id}`}
+                            className="px-6 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors font-medium"
+                          >
+                            View Menu
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </motion.div>

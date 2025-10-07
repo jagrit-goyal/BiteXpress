@@ -44,6 +44,9 @@ router.post('/', auth, async (req, res) => {
     if (!shopkeeper) {
       return res.status(404).json({ message: 'Shopkeeper not found' });
     }
+    if (!shopkeeper.isOpen) {
+      return res.status(400).json({ message: 'Shop is currently closed' });
+    }
 
     // Calculate delivery fee
     let deliveryFee = 0;

@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const shops = await Shopkeeper.find({ isActive: true })
-      .select('name email phone shopName shopLocation shopType shopImage isVerified isActive deliveryFee minimumOrderAmount freeDeliveryAbove')
+      .select('name email phone shopName shopLocation shopType shopImage isVerified isActive isOpen deliveryFee minimumOrderAmount freeDeliveryAbove')
       .sort({ shopName: 1 });
     
     res.json(shops);

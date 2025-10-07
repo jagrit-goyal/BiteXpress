@@ -54,6 +54,7 @@ const ShopkeeperDashboard = () => {
     shopLocation: string; 
     shopType: string; 
     shopImage?: string | null;
+    isOpen: boolean;
     deliveryFee: number;
     minimumOrderAmount: number;
     freeDeliveryAbove: number | null;
@@ -109,6 +110,7 @@ const ShopkeeperDashboard = () => {
         shopName: profile.shopName,
         shopLocation: profile.shopLocation,
         shopType: profile.shopType,
+        isOpen: profile.isOpen,
         deliveryFee: profile.deliveryFee,
         minimumOrderAmount: profile.minimumOrderAmount,
         freeDeliveryAbove: profile.freeDeliveryAbove
@@ -137,6 +139,18 @@ const ShopkeeperDashboard = () => {
       setProfile(prev => prev ? { ...prev, shopImage: res.data.shopImage } : prev);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to upload image');
+    }
+  };
+
+  const toggleShopOpen = async () => {
+    if (!profile) return;
+    try {
+      const next = !profile.isOpen;
+      await axios.put('/api/shopkeepers/profile', { isOpen: next });
+      setProfile(prev => prev ? { ...prev, isOpen: next } : prev);
+      toast.success(`Shop ${next ? 'opened' : 'closed'}`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update status');
     }
   };
 
@@ -290,12 +304,29 @@ const ShopkeeperDashboard = () => {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name}! 👋
-          </h2>
-          <p className="text-gray-600 text-lg">
-            Manage your shop, menu, and orders from your dashboard.
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Welcome back, {user?.name}! 👋
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Manage your shop, menu, and orders from your dashboard.
+              </p>
+            </div>
+            {profile && (
+              <div className="flex items-center gap-3">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${profile.isOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {profile.isOpen ? 'Open' : 'Closed'}
+                </span>
+                <button
+                  onClick={toggleShopOpen}
+                  className={`px-4 py-2 rounded-lg font-medium border ${profile.isOpen ? 'bg-red-600 text-white border-red-700 hover:bg-red-700' : 'bg-green-600 text-white border-green-700 hover:bg-green-700'}`}
+                >
+                  {profile.isOpen ? 'Close Shop' : 'Open Shop'}
+                </button>
+              </div>
+            )}
+          </div>
         </motion.div>
 
         {/* Stats Cards */}

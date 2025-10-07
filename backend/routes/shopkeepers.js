@@ -74,14 +74,18 @@ router.put('/profile', auth, async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Shopkeepers only.' });
     }
 
-    const allowed = ['name', 'phone', 'shopName', 'shopLocation', 'shopType', 'deliveryFee', 'minimumOrderAmount', 'freeDeliveryAbove'];
+    const allowed = ['name', 'phone', 'shopName', 'shopLocation', 'shopType', 'deliveryFee', 'minimumOrderAmount', 'freeDeliveryAbove', 'isOpen'];
     const update = {};
     for (const key of allowed) {
       if (typeof req.body[key] !== 'undefined') update[key] = req.body[key];
     }
 
-    const updated = await Shopkeeper.findByIdAndUpdate(req.user._id, update, { new: true })
-      .select('name email phone shopName shopLocation shopType shopImage isVerified deliveryFee minimumOrderAmount freeDeliveryAbove');
+    const updated = await Shopkeeper.findByIdAndUpdate(
+      req.user._id,
+      { $set: update },
+      { new: true, runValidators: true }
+    )
+      .select('name email phone shopName shopLocation shopType shopImage isVerified deliveryFee minimumOrderAmount freeDeliveryAbove isOpen');
 
     res.json({ message: 'Profile updated', profile: updated });
   } catch (error) {
