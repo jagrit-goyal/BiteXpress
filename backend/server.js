@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
@@ -11,7 +10,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-// Serve uploaded images from absolute path to avoid cwd issues
+
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -24,8 +23,8 @@ app.use('/api/orders', require('./routes/orders'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Basic route
 app.get('/', (req, res) => {
